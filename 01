@@ -1,0 +1,120 @@
+import time
+import random
+import matplotlib.pyplot as plt
+
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i+1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+
+def insertion_sort(arr):
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j+1] = arr[j]
+            j -= 1
+        arr[j+1] = key
+
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr) // 2
+        left = arr[:mid]
+        right = arr[mid:]
+
+        merge_sort(left)
+        merge_sort(right)
+
+        i = j = k = 0
+
+        while i < len(left) and j < len(right):
+            if left[i] < right[j]:
+                arr[k] = left[i]
+                i += 1
+            else:
+                arr[k] = right[j]
+                j += 1
+            k += 1
+
+        while i < len(left):
+            arr[k] = left[i]
+            i += 1
+            k += 1
+
+        while j < len(right):
+            arr[k] = right[j]
+            j += 1
+            k += 1
+
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    else:
+        pivot = arr[0]
+        less = [x for x in arr[1:] if x <= pivot]
+        greater = [x for x in arr[1:] if x > pivot]
+        return quick_sort(less) + [pivot] + quick_sort(greater)
+
+def test_sorting_algo(algo_name, arr):
+    start_time = time.time()
+    if algo_name == "bubble_sort":
+        bubble_sort(arr)
+    elif algo_name == "selection_sort":
+        selection_sort(arr)
+    elif algo_name == "insertion_sort":
+        insertion_sort(arr)
+    elif algo_name == "merge_sort":
+        merge_sort(arr)
+    elif algo_name == "quick_sort":
+        quick_sort(arr)
+    end_time = time.time()
+    return end_time - start_time
+
+def generate_random_array(size):
+    return random.sample(range(size), size)
+
+def plot_graph(results, algo_name, array_type):
+    x_values = [size for size, _ in results]
+    y_values = [time for _, time in results]
+
+    plt.plot(x_values, y_values, label=array_type)
+    plt.xlabel("Tamanho da Entrada")
+    plt.ylabel("Tempo de Execução (segundos)")
+    plt.title(algo_name)
+    plt.legend()
+    plt.show()
+
+# Configurações dos testes
+array_types = ["Crescente", "Decrescente", "Aleatório"]
+array_sizes = [1000, 5000, 10000, 20000, 30000]
+num_runs = 3
+
+# Realização dos testes
+for algo_name in ["bubble_sort", "selection_sort", "insertion_sort", "merge_sort", "quick_sort"]:
+    for array_type in array_types:
+        results = []
+        for size in array_sizes:
+            total_time = 0
+            for _ in range(num_runs):
+                if array_type == "Crescente":
+                    arr = list(range(size))
+                elif array_type == "Decrescente":
+                    arr = list(range(size, 0, -1))
+                elif array_type == "Aleatório":
+                    arr = generate_random_array(size)
+                total_time += test_sorting_algo(algo_name, arr)
+            avg_time = total_time / num_runs
+            results.append((size, avg_time))
+        plot_graph(results, algo_name, array_type)
